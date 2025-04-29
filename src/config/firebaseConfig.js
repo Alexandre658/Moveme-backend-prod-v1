@@ -1,14 +1,7 @@
 import admin from 'firebase-admin';
-import { readFile } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 
-// Se estiver usando ES6 (com "type": "module" no package.json), este bloco substitui __dirname.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Caminho absoluto para o arquivo serviceAccountKey.json
-const serviceAccountPath = path.join(__dirname, './firebase/serviceAccountKey.json');
+dotenv.config();
 
 // Promessa que resolve quando o Firebase estiver inicializado
 let firebaseInitPromise = null;
@@ -27,13 +20,25 @@ export default async function firebaseConfig() {
         return;
       }
 
-      // Ler o arquivo de credenciais do Firebase
-      const serviceAccount = JSON.parse(await readFile(serviceAccountPath));
+      // Verificar se todas as variáveis de ambiente necessárias estão definidas
+      const requiredEnvVars = ['FIREBASE_PROJECT_ID', 'FIREBASE_PRIVATE_KEY', 'FIREBASE_CLIENT_EMAIL'];
+      const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+      
+      if (missingVars.length > 0) {
+        throw new Error(`Variáveis de ambiente necessárias não definidas: ${missingVars.join(', ')}`);
+      }
+
+      // Criar objeto de credenciais a partir das variáveis de ambiente
+      const serviceAccount = {
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL
+      };
 
       // Inicializar o Firebase Admin SDK
       const app = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://movemeclient-ddfbd-default-rtdb.asia-southeast1.firebasedatabase.app",
+        databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
       });
 
       console.log('Firebase configurado com sucesso.');
@@ -65,25 +70,13 @@ export const db = async () => {
 export const adm = async () => {
   await firebaseInitPromise;
   return {
-    ...admin,
-    auth: () => ({
-      ...admin.auth(),
-      createCustomToken: (uid) => admin.auth().createCustomToken(uid),
-      getUserByEmail: (email) => admin.auth().getUserByEmail(email),
-      updateUser: (uid, data) => admin.auth().updateUser(uid, data),
-      updateUserByEmail: (email, data) => admin.auth().updateUserByEmail(email, data),
-      updateUserByPhoneNumber: (phoneNumber, data) => admin.auth().updateUserByPhoneNumber(phoneNumber, data),
-      updateUserByUid: (uid, data) => admin.auth().updateUserByUid(uid, data),
-      deleteUser: (uid) => admin.auth().deleteUser(uid),
-      deleteUserByEmail: (email) => admin.auth().deleteUserByEmail(email),
-      deleteUserByPhoneNumber: (phoneNumber) => admin.auth().deleteUserByPhoneNumber(phoneNumber),
-      deleteUserByUid: (uid) => admin.auth().deleteUserByUid(uid), 
-    }),
+    auth: () => admin.auth(),
     firestore: () => ({
       ...admin.firestore(),
-     
       Timestamp: admin.firestore.Timestamp,
-      FieldValue: admin.firestore.FieldValue
+      FieldValue: {
+        serverTimestamp: () => admin.firestore.FieldValue.serverTimestamp()
+      }
     })
   };
 };

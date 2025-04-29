@@ -318,7 +318,7 @@ export class AuthService extends IAuthService {
       const sendResult = await emailServiceInstance.sendAccessCodeEmail(email, name, verificationCode); 
       const {messageId} = sendResult;
       if (!messageId) {
-        throw new ServiceError(error);
+        throw new ServiceError('Failed to send verification code');
       }
 
       // Save verification code in Firestore with expiration time
@@ -326,16 +326,16 @@ export class AuthService extends IAuthService {
       expirationTime.setMinutes(expirationTime.getMinutes() + 15); // Expires in 15 minutes
 
       const dbInstance = await db();
-      const admInstance = await adm();
       await dbInstance.collection('checks').doc(email).set({
         code: verificationCode,
-        expirationTime: admInstance.firestore().Timestamp.fromDate(expirationTime),
+        expirationTime: adminInstance.firestore().Timestamp.fromDate(expirationTime),
         verified: false,
-        createdAt: admInstance.firestore.FieldValue.serverTimestamp(),
+        createdAt: adminInstance.firestore().FieldValue.serverTimestamp()
       });
 
       return { success: true, message: 'Verification code sent' };
     } catch (error) {
+      console.error('Error in sendAccessCodeEmail:', error);
       if (error instanceof ValidationError || error instanceof ServiceError) {
         throw error;
       }

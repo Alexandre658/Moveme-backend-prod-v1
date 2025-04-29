@@ -8,7 +8,13 @@ import peakHourRoutes from './routes/peak_hour.routes.js';
 import authRoutes from './routes/auth.routes.js';
 
 // Inicialização do Firebase Admin
-await firebaseConfig();
+try {
+  await firebaseConfig();
+  console.log('Firebase inicializado com sucesso');
+} catch (error) {
+  console.error('Erro ao inicializar Firebase:', error);
+  process.exit(1);
+}
 
 // Configuração do Express
 const app = express();
