@@ -8,7 +8,7 @@ import Driver from './Driver.js';
 import cors from 'cors'; // Import the CORS middleware
 // Substituir o require por import para compatibilidade com ES6 modules
 import { timeStamp } from 'console';
-import peakHourService from './src/services/peak_hour_service.js';
+import { PeakHourService } from './src/services/peak_hour_service.js';
 const timers = {};
 const require = createRequire(import.meta.url);
 const admin = require('firebase-admin');
@@ -29,6 +29,9 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 const db = admin.firestore();
+
+// Inicializar o serviço de horário de pico
+const peakHourService = await new PeakHourService().initialize();
 
 // Lista de portas alternativas a serem tentadas
 const ports = [3000, 3001, 3002, 3003, 3004];

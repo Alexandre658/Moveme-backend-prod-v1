@@ -3,6 +3,7 @@ import { db, adm } from '../config/firebaseConfig.js'
 import emailServiceInstance from './emailService.js';
 import { IAuthService } from '../interfaces/IAuthService.js';
 import { AuthenticationError, ValidationError, DatabaseError, ServiceError, validateParams } from '../utils/errors.js';
+import admin from 'firebase-admin';
 
 // Validation schema for parameters
 const validationSchemas = {
@@ -111,9 +112,9 @@ export class AuthService extends IAuthService {
         await dbInstance.collection('checks').doc(phone).set({
           code: verificationCode,
           phone,
-          expirationTime: admInstance.firestore.Timestamp.fromDate(expirationTime),
+          expirationTime: admInstance.firestore().Timestamp.fromDate(expirationTime),
           verified: false,
-          createdAt: admInstance.firestore.FieldValue.serverTimestamp(),
+          createdAt: admInstance.firestore().FieldValue.serverTimestamp(),
         });
       } catch (dbError) {
         console.error('Error saving to database:', dbError);
@@ -286,7 +287,7 @@ export class AuthService extends IAuthService {
         code: verificationCode,
         expirationTime,
         verified: false,
-        createdAt: adminInstance.firestore.FieldValue.serverTimestamp(),
+        createdAt: adminInstance.firestore().FieldValue.serverTimestamp(),
       });
 
       return { success: true, message: 'Email updated and verification code sent' };
@@ -328,9 +329,9 @@ export class AuthService extends IAuthService {
       const dbInstance = await db();
       await dbInstance.collection('checks').doc(email).set({
         code: verificationCode,
-        expirationTime: adminInstance.firestore().Timestamp.fromDate(expirationTime),
+        expirationTime: admin.firestore.Timestamp.fromDate(expirationTime),
         verified: false,
-        createdAt: adminInstance.firestore().FieldValue.serverTimestamp()
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
       return { success: true, message: 'Verification code sent' };

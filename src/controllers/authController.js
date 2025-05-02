@@ -1,17 +1,17 @@
-import { enviarCodigoVerificacao, verificarCodigo, adicionarEmailComVerificacao, verificarCodigoEmail, adicionarTelefoneComVerificacao } from '../services/authService.js';
+import { authService } from '../services/authService.js';
 
 /**
  * Enviar o código de verificação para o número de telefone.
  */
 export const enviarCodigo = async (req, res) => {
-  const { telefone, chaveEntidade } = req.body;
+  const { telefone } = req.body;
 
-  if (!telefone || !chaveEntidade) {
+  if (!telefone ) {
     return res.status(400).json({ error: 'Telefone e chave da entidade são obrigatórios' });
   }
 
   try {
-    const resultado = await enviarCodigoVerificacao(telefone, chaveEntidade);
+    const resultado = await authService.sendVerificationCode(telefone);
     if (resultado.success) {
       res.status(200).json({ message: resultado.message });
     } else {
@@ -33,7 +33,7 @@ export const verificarCodigoInserido = async (req, res) => {
   }
 
   try {
-    const resultado = await verificarCodigo(telefone, codigo);
+    const resultado = await authService.verifyCode(telefone, codigo);
 
     if (resultado.success) {
       res.status(200).json({ resultado });
@@ -61,7 +61,7 @@ export const adicionarEmail = async (req, res) => {
 
   try {
     // Chama o serviço para adicionar o e-mail e enviar o código de verificação
-    const resultado = await adicionarEmailComVerificacao(uid, email);
+    const resultado = await authService.addEmailWithVerification(uid, email);
 
     if (resultado.success) {
       return res.status(200).json({ success: true, message: resultado.message });
@@ -89,7 +89,7 @@ export const verificarCodigEmail = async (req, res) => {
 
   try {
     // Chama o serviço para verificar o código de verificação
-    const resultado = await verificarCodigoEmail(email, codigo);
+    const resultado = await authService.verifyEmailCode(email, codigo);
 
     if (resultado.success) {
       return res.status(200).json({ success: true, message: resultado.message, token: resultado.token, user: resultado.user`` });
@@ -117,7 +117,7 @@ export const adicionarTelefone = async (req, res) => {
 
   try {
     // Chama o serviço para adicionar o telefone e enviar o código de verificação
-    const resultado = await adicionarTelefoneComVerificacao(uid, telefone, chaveEntidade);
+    const resultado = await authService.addPhoneWithVerification(uid, telefone, chaveEntidade);
 
     if (resultado.success) {
       return res.status(200).json({ success: true, message: resultado.message });
@@ -145,7 +145,7 @@ export const verificarCodigoTelefoneController = async (req, res) => {
 
   try {
     // Chama o serviço para verificar o código de verificação do telefone
-    const resultado = await verificarCodigo(telefone, codigo);
+    const resultado = await authService.verifyPhoneCode(telefone, codigo);
 
     if (resultado.success) {
       return res.status(200).json({ success: true, message: resultado.message });
