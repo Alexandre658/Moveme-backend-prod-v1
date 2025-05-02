@@ -187,18 +187,34 @@ export class AuthService extends IAuthService {
           let userRecord;
           
           try {
-            userRecord = await admInstance.auth().getUserByPhoneNumber(phone);
-            const userDocRef = admInstance.firestore().collection('users').doc(userRecord.uid);
-            await userDocRef.update({
-              isPhoneVerified: true,
-              phone: phone
-            });
+            userRecord = await admInstance.auth().getUserByPhoneNumber(phone); 
+
+            const userDocRef = dbInstance.collection('users').doc(userRecord.uid); 
+            if (userDocRef.exists) {
+              await userDocRef.update({
+                isPhoneVerified: true,
+                phone: phone
+              });
+            } else {
+              await userDocRef.set({
+                isPhoneVerified: true,
+                phone: phone
+              });
+            }
           } catch (error) {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-phone-number') {
+
+            if (error.code === 'auth/user-not-found') {
               userRecord = await admInstance.auth().createUser({
                 phoneNumber: phone,
               });
-              await admInstance.firestore().collection('users').doc(userRecord.uid).set({
+              await dbInstance.collection('users').doc(userRecord.uid).set({
+                isPhoneVerified: true,
+                phone: phone
+              });
+            }  else
+            if (error.code === 5 || error.code === 5) {
+               
+                await dbInstance.collection('users').doc(userRecord.uid).set({
                 isPhoneVerified: true,
                 phone: phone
               });
