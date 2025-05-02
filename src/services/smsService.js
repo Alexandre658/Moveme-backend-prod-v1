@@ -1,16 +1,25 @@
-import axios from 'axios'; // Para fazer requisições HTTP
+import axios from 'axios';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // URL base da API
 const API_URL = 'https://www.telcosms.co.ao/send_message';
 
 /**
  * Enviar um SMS para o destinatário.
- * @param {string} chaveEntidade - Chave da API fornecida pela NetSMS.
  * @param {string} destinatario - Número de telefone do destinatário (ex: +244999999999).
  * @param {string} descricaoSms - Texto da mensagem que será enviada.
  */
-export const sendSMS = async (chaveEntidade, destinatario, descricaoSms) => {
+export const sendSMS = async (destinatario, descricaoSms) => {
   try { 
+    const chaveEntidade = process.env.CHAVE_ENTIDADE;
+    
+    if (!chaveEntidade) {
+      throw new Error('Chave da entidade não encontrada nas variáveis de ambiente');
+    }
+
     console.log('Tentando enviar SMS com os seguintes dados:', {
       destinatario,
       descricaoSms,

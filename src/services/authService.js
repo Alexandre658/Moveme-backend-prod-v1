@@ -89,14 +89,14 @@ export class AuthService extends IAuthService {
    * @throws {ServiceError} If there's an error sending SMS
    * @throws {DatabaseError} If there's an error saving to database
    */
-  async sendVerificationCode(phone, entityKey) {
-    validateParams({ phone, entityKey }, validationSchemas.sendVerificationCode);
+  async sendVerificationCode(phone) {
+    validateParams({ phone }, validationSchemas.sendVerificationCode);
 
     try {
       const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
       const message = `Your verification code is: ${verificationCode}`;
       
-      const sendResult = await sendSMS(entityKey, phone, message);
+      const sendResult = await sendSMS(phone, message);
       if (!sendResult.success) {
         throw new ServiceError('Failed to send verification code');
       }

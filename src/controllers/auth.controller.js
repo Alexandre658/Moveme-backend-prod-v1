@@ -7,14 +7,14 @@ const authService = new AuthService();
  * Enviar o código de verificação para o número de telefone.
  */
 export const enviarCodigo = async (req, res) => {
-  const { telefone, chaveEntidade } = req.body;
+  const { telefone } = req.body;
 
-  if (!telefone || !chaveEntidade) {
+  if (!telefone) {
     return res.status(400).json({ error: 'Telefone e chave da entidade são obrigatórios' });
   }
 
   try {
-    const resultado = await authService.enviarCodigoVerificacao(telefone, chaveEntidade);
+    const resultado = await authService.enviarCodigoVerificacao(telefone);
     if (resultado.success) {
       res.status(200).json({ message: resultado.message });
     } else {
