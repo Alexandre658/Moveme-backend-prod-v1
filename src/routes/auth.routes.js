@@ -48,7 +48,7 @@ router.post('/enviar-codigo', apiKeyMiddleware, enviarCodigo);
  *               telefone:
  *                 type: string
  *                 example: "+244999999999"
- *               codigo:
+ *               codigo:  
  *                 type: string
  *                 example: "123456"
  *     responses:
