@@ -4,30 +4,30 @@ import firebaseConfig from '../config/firebaseConfig.js';
 
 const router = express.Router();
 
-// Função para inicializar o controlador
+// Function to initialize the controller
 const initializeController = async () => {
-    // Garantir que o Firebase está inicializado
+    // Ensure Firebase is initialized
     await firebaseConfig();
     
-    // Criar e inicializar o controlador
+    // Create and initialize the controller
     const peakHourController = new PeakHourController();
     await peakHourController.initialize();
     
-    // Configurar as rotas
+    // Configure routes
     router.get('/status', peakHourController.getPeakStatus);
     router.post('/config', peakHourController.updatePeakHourConfig);
     router.delete('/config', peakHourController.removePeakHourConfig);
     
-    // Rotas de classes de veículo
+    // Vehicle class routes
     router.get('/vehicle-classes', peakHourController.getAllVehicleClasses);
     router.get('/vehicle-classes/:id', peakHourController.getVehicleClass);
     router.post('/vehicle-classes', peakHourController.updateVehicleClass);
     router.delete('/vehicle-classes/:id', peakHourController.removeVehicleClass);
 };
 
-// Inicializar o controlador
+// Initialize the controller
 initializeController().catch(error => {
-    console.error('Erro ao inicializar o controlador:', error);
+    console.error('Error initializing controller:', error);
 });
 
 export default router; 

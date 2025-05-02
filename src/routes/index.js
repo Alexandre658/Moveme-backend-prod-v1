@@ -3,8 +3,8 @@ import trackingRoutes from './tracking.routes.js';
 import requestRoutes from './request.routes.js';
 import notificationRoutes from './notification.routes.js';
 import authRoutes from './auth.routes.js'; 
-import peakHourRoutes from './peak_hour.routes.js';
-import emailRoutes from './emailRoutes.js';
+import peakHourRoutes from './peakHour.routes.js';
+import emailRoutes from './email.routes.js';
 
 const router = Router();
 

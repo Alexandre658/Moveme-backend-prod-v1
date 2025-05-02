@@ -7,8 +7,8 @@ const router = Router();
  * @swagger
  * /trackings:
  *   post:
- *     summary: Criar ou atualizar um rastreamento de veículo.
- *     tags: [Rastreamento]
+ *     summary: Create or update a vehicle tracking.
+ *     tags: [Tracking]
  *     requestBody:
  *       required: true
  *       content:
@@ -48,11 +48,11 @@ const router = Router();
  *                 example: "Car"
  *     responses:
  *       201:
- *         description: Tracking criado ou atualizado com sucesso.
+ *         description: Tracking created or updated successfully.
  *       400:
- *         description: Parâmetros obrigatórios faltando.
+ *         description: Missing required parameters.
  *       500:
- *         description: Erro ao criar ou atualizar o tracking.
+ *         description: Error creating or updating tracking.
  */
 router.post('/', createTracking);
 
@@ -60,11 +60,11 @@ router.post('/', createTracking);
  * @swagger
  * /trackings:
  *   get:
- *     summary: Obter todos os rastreamentos.
- *     tags: [Rastreamento]
+ *     summary: Get all trackings.
+ *     tags: [Tracking]
  *     responses:
  *       200:
- *         description: Lista de todos os rastreamentos.
+ *         description: List of all trackings.
  *         content:
  *           application/json:
  *             schema:
@@ -82,7 +82,7 @@ router.post('/', createTracking);
  *                   vehicle: "Vehicle1"
  *                   classVehicle: "Car"
  *       500:
- *         description: Erro ao obter os rastreamentos.
+ *         description: Error getting trackings.
  */
 router.get('/', getAllTrackings);
 
@@ -90,18 +90,18 @@ router.get('/', getAllTrackings);
  * @swagger
  * /trackings/{id}:
  *   get:
- *     summary: Obter um rastreamento por ID.
- *     tags: [Rastreamento]
+ *     summary: Get a tracking by ID.
+ *     tags: [Tracking]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: ID do rastreamento
+ *         description: Tracking ID
  *     responses:
  *       200:
- *         description: Rastreamento encontrado.
+ *         description: Tracking found.
  *         content:
  *           application/json:
  *             schema:
@@ -118,9 +118,9 @@ router.get('/', getAllTrackings);
  *                 vehicle: "Vehicle1"
  *                 classVehicle: "Car"
  *       404:
- *         description: Rastreamento não encontrado.
+ *         description: Tracking not found.
  *       500:
- *         description: Erro ao obter o rastreamento.
+ *         description: Error getting tracking.
  */
 router.get('/:id', getTrackingById);
 
@@ -128,15 +128,15 @@ router.get('/:id', getTrackingById);
  * @swagger
  * /trackings/{id}:
  *   put:
- *     summary: Atualizar um rastreamento por ID.
- *     tags: [Rastreamento]
+ *     summary: Update a tracking by ID.
+ *     tags: [Tracking]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: ID do rastreamento a ser atualizado
+ *         description: ID of the tracking to update
  *     requestBody:
  *       required: true
  *       content:
@@ -170,13 +170,13 @@ router.get('/:id', getTrackingById);
  *                 example: "Vehicle1"
  *     responses:
  *       200:
- *         description: Rastreamento atualizado com sucesso.
+ *         description: Tracking updated successfully.
  *       404:
- *         description: Rastreamento não encontrado.
+ *         description: Tracking not found.
  *       400:
- *         description: Parâmetros obrigatórios faltando.
+ *         description: Missing required parameters.
  *       500:
- *         description: Erro ao atualizar o rastreamento.
+ *         description: Error updating tracking.
  */
 router.put('/:id', updateTracking);
 
@@ -184,22 +184,22 @@ router.put('/:id', updateTracking);
  * @swagger
  * /trackings/{id}:
  *   delete:
- *     summary: Deletar um rastreamento por ID.
- *     tags: [Rastreamento]
+ *     summary: Delete a tracking by ID.
+ *     tags: [Tracking]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: ID do rastreamento a ser deletado
+ *         description: ID of the tracking to delete
  *     responses:
  *       200:
- *         description: Rastreamento deletado com sucesso.
+ *         description: Tracking deleted successfully.
  *       404:
- *         description: Rastreamento não encontrado.
+ *         description: Tracking not found.
  *       500:
- *         description: Erro ao deletar o rastreamento.
+ *         description: Error deleting tracking.
  */
 router.delete('/:id', deleteTracking);
 
