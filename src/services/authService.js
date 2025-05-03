@@ -193,13 +193,28 @@ export class AuthService extends IAuthService {
               await userDocRef.update({
                 isPhoneVerified: true,
                 phone: phone,
-                lastLoginAt: adminInstance.firestore.FieldValue.serverTimestamp()
+                lastLoginAt: admInstance.firestore().FieldValue.serverTimestamp()
               });
             } else {
               await userDocRef.set({
                 isPhoneVerified: true,
                 phone: phone,
-                lastLoginAt: adminInstance.firestore.FieldValue.serverTimestamp()
+                lastLoginAt: admInstance.firestore().FieldValue.serverTimestamp(),
+                creationDate: admInstance.firestore().FieldValue.serverTimestamp(),
+                googleId: "",
+                iAcceptTheTerms: false,
+                isActived: false,
+                isEmailVerified: false,
+                is_online: false,
+                language: "PT",
+                lastChange: admInstance.firestore().FieldValue.serverTimestamp(),
+                lastTime: 0,
+                last_login: admInstance.firestore().FieldValue.serverTimestamp(),
+                last_password_change: admInstance.firestore().FieldValue.serverTimestamp(),
+                moeda: "",
+                nightMode: false,
+                timestamp: admInstance.firestore().FieldValue.serverTimestamp(),
+                typeUser: ""
               });
             }
           } catch (error) {
@@ -210,7 +225,22 @@ export class AuthService extends IAuthService {
               await dbInstance.collection('users').doc(userRecord.uid).set({
                 isPhoneVerified: true,
                 phone: phone,
-                lastLoginAt: adminInstance.firestore.FieldValue.serverTimestamp()
+                lastLoginAt: admInstance.firestore().FieldValue.serverTimestamp(),
+                creationDate: admInstance.firestore().FieldValue.serverTimestamp(),
+                googleId: "",
+                iAcceptTheTerms: false,
+                isActived: false,
+                isEmailVerified: false,
+                is_online: false,
+                language: "PT",
+                lastChange: admInstance.firestore().FieldValue.serverTimestamp(),
+                lastTime: 0,
+                last_login: admInstance.firestore().FieldValue.serverTimestamp(),
+                last_password_change: admInstance.firestore().FieldValue.serverTimestamp(),
+                moeda: "",
+                nightMode: false,
+                timestamp: admInstance.firestore().FieldValue.serverTimestamp(),
+                typeUser: ""
               });
             } else {
               throw error;
