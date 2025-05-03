@@ -184,39 +184,33 @@ export class AuthService extends IAuthService {
 
         try {
           const admInstance = await adm();
-          let userRecord;
-          
+          let userRecord; 
           try {
-            userRecord = await admInstance.auth().getUserByPhoneNumber(phone); 
-
-            const userDocRef = dbInstance.collection('users').doc(userRecord.uid); 
-            if (userDocRef.exists) {
+            userRecord = await admInstance.auth().getUserByPhoneNumber(phone);
+            const userDocRef = dbInstance.collection('users').doc(userRecord.uid);
+            const userDoc = await userDocRef.get(); 
+            if (userDoc.exists) {
               await userDocRef.update({
                 isPhoneVerified: true,
-                phone: phone
+                phone: phone,
+                lastLoginAt: adminInstance.firestore.FieldValue.serverTimestamp()
               });
             } else {
               await userDocRef.set({
                 isPhoneVerified: true,
-                phone: phone
+                phone: phone,
+                lastLoginAt: adminInstance.firestore.FieldValue.serverTimestamp()
               });
             }
           } catch (error) {
-
             if (error.code === 'auth/user-not-found') {
               userRecord = await admInstance.auth().createUser({
                 phoneNumber: phone,
               });
               await dbInstance.collection('users').doc(userRecord.uid).set({
                 isPhoneVerified: true,
-                phone: phone
-              });
-            }  else
-            if (error.code === 5 || error.code === 5) {
-               
-                await dbInstance.collection('users').doc(userRecord.uid).set({
-                isPhoneVerified: true,
-                phone: phone
+                phone: phone,
+                lastLoginAt: adminInstance.firestore.FieldValue.serverTimestamp()
               });
             } else {
               throw error;
