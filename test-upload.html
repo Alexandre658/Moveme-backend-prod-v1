@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Upload</title>
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+        #result { margin-top: 20px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Teste de Upload</h1>
+    <form id="uploadForm">
+        <input type="file" name="file" accept="image/*,.pdf">
+        <button type="submit">Enviar</button>
+    </form>
+    <div id="status"></div>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+            const fileInput = document.querySelector('input[type="file"]');
+            
+            if (!fileInput.files[0]) {
+                status.innerHTML = '<p class="error">Por favor, selecione um arquivo</p>';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            status.innerHTML = '<p>Enviando arquivo...</p>';
+            result.textContent = '';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/storage/upload', {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': '12345'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    status.innerHTML = '<p class="success">Upload realizado com sucesso!</p>';
+                    result.textContent = JSON.stringify(data, null, 2);
+                    
+                    if (data.url) {
+                        result.innerHTML += `<br><br>URL do arquivo: <a href="${data.url}" target="_blank">${data.url}</a>`;
+                    }
+                } else {
+                    status.innerHTML = '<p class="error">Erro no upload</p>';
+                    result.textContent = JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                status.innerHTML = '<p class="error">Erro na requisição</p>';
+                result.textContent = 'Erro: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html> 

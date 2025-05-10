@@ -13,7 +13,6 @@ import apiKeyMiddleware from './src/middlewares/apiKeyMiddleware.js';
 
 const app = express();
 const server = http.createServer(app);
-app.use(express.json());
 
 // Configurar Firebase antes de iniciar qualquer serviço
 console.log('Inicializando Firebase...');
@@ -38,12 +37,14 @@ console.log('Serviço de horário de pico inicializado com sucesso!');
 
 // Configuração do CORS
 app.use(cors(corsConfig));
- // Middleware para JSON
 
-// Middleware para proteger todas as rotas com API Key
-app.use(apiKeyMiddleware);
+// Middleware para JSON
+app.use(express.json());
 
-// Rotas
+// ROTAS PÚBLICAS: arquivos estáticos SEM API KEY
+app.use('/uploads', express.static('uploads'));
+
+// Rotas da aplicação
 app.use('/', routes);
 
 // Middleware de tratamento de erros
