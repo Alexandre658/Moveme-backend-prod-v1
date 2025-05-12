@@ -30,7 +30,7 @@ class StorageService {
                 fileSize: 5 * 1024 * 1024, // 5MB
             },
             fileFilter: (req, file, cb) => {
-                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
                 if (allowedTypes.includes(file.mimetype)) {
                     cb(null, true);
                 } else {
