@@ -150,11 +150,12 @@ export const acceptRequest = async (req, res) => {
   const { driverId } = req.body;
 
   try {
-    const requestDoc = await db().collection('races').doc(requestId).get();
+    const database = await db();
+    const requestDoc = await database.collection('races').doc(requestId).get();
     if (!requestDoc.exists) {
       return res.status(404).json({ error: 'races not found' });
     }
-    const UsertDoc = await db().collection('users').doc(driverId).get(); 
+    const UsertDoc = await database.collection('users').doc(driverId).get(); 
     const {vehicleSelected} = UsertDoc.data();
     const requestData = requestDoc.data();
     
@@ -172,14 +173,14 @@ export const acceptRequest = async (req, res) => {
       );
     }
 
-    await db().collection('races').doc(requestId).update({ 
+    await database.collection('races').doc(requestId).update({ 
       driver: UsertDoc.data(),
       status: 2, 
       assigned: driverId, 
       requestId,
       vehicle: vehicleSelected 
     });
-    await db().collection('users').doc(driverId).update({ tripId: requestId }); 
+    await database.collection('users').doc(driverId).update({ tripId: requestId }); 
      
     clients.forEach((client) => client.emit('requestResponse', { requestId, response: 'accepted' }));
     res.json({ message: 'Request accepted', result: requestData });
