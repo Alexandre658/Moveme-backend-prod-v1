@@ -57,6 +57,12 @@ export function isFirebaseInitialized() {
   return admin.apps.length > 0;
 }
 
+// Inicializa o Firebase imediatamente
+firebaseConfig().catch(error => {
+  console.error('Erro na inicialização do Firebase:', error);
+  process.exit(1);
+});
+
 export const admMessaging = async () => {
   await firebaseInitPromise;
   return admin.messaging();

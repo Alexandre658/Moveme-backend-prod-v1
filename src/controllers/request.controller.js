@@ -49,14 +49,15 @@ const getPolylineBetweenPoints = async (origin, destination) => {
 const startTripRecording = async (driverId, requestId) => {
   try {
     const admin = await adm();
-    const tripRef = db().collection('trips').doc(requestId);
+    const database = await db();
+    const tripRef = database.collection('trips').doc(requestId);
     await tripRef.set({
       startTime: admin.firestore().FieldValue.serverTimestamp(),
       requestId,
       status: 'ongoing',
     });
 
-    await db().collection('races').doc(requestId).update({ tripId: requestId, status: 5 });
+    await database.collection('races').doc(requestId).update({ tripId: requestId, status: 5 });
 
     timers[requestId] = setInterval(async () => {
       try {
@@ -93,6 +94,7 @@ export const createRequest = async (req, res) => {
   }
 
   try {
+    const database = await db();
     const documentData = await getDocument('races', documentId);
     if (!documentData.originLatitude || !documentData.originLongitude) {
       return res.status(400).json({ error: 'Origin latitude and longitude are required' });
@@ -112,7 +114,7 @@ export const createRequest = async (req, res) => {
       documentId: documentId,
     };
 
-    await db().collection('requests').doc(requestId).set(requestData);
+    await database.collection('requests').doc(requestId).set(requestData);
 
     clients.forEach((client) => client.emit('driverRequest', { driverId, requestId, driver: driver.toJson(), document: documentData, polyline }));
     res.json({ message: 'Request sent to all clients', request: requestData });
@@ -127,7 +129,8 @@ export const cancelRace = async (req, res) => {
   const { requestId } = req.params;
 
   try {
-    const requestDoc = await db().collection('requests').doc(requestId).get();
+    const database = await db();
+    const requestDoc = await database.collection('requests').doc(requestId).get();
     if (!requestDoc.exists) {
       await updateDocument('races', requestId, { status: 7 });
       return res.status(404).json({ error: 'Request not found' });
@@ -135,7 +138,7 @@ export const cancelRace = async (req, res) => {
 
     const requestData = requestDoc.data();
     requestData.status = 'Cancelled';
-    await db().collection('requests').doc(requestId).update({ status: 'Cancelled' });
+    await database.collection('requests').doc(requestId).update({ status: 'Cancelled' });
 
     clients.forEach((client) => client.emit('requestResponse', { requestId, response: 'Cancelled' }));
     res.json({ message: 'Request cancelled', request: requestData });
@@ -196,7 +199,8 @@ export const denyRequest = async (req, res) => {
   const { requestId } = req.params;
 
   try {
-    const requestDoc = await db().collection('requests').doc(requestId).get();
+    const database = await db();
+    const requestDoc = await database.collection('requests').doc(requestId).get();
     if (!requestDoc.exists) {
       await updateDocument('races', requestId, { status: 1 });
       clients.forEach((client) => client.emit('requestResponse', { requestId, response: 'denied' }));
@@ -205,7 +209,7 @@ export const denyRequest = async (req, res) => {
 
     const requestData = requestDoc.data();
     requestData.status = 'denied';
-    await db().collection('requests').doc(requestId).update(requestData);
+    await database.collection('requests').doc(requestId).update(requestData);
 
     clients.forEach((client) => client.emit('requestResponse', { requestId, response: 'denied' }));
     res.json({ message: 'Request denied' });
@@ -218,15 +222,16 @@ export const denyRequest = async (req, res) => {
 // Função auxiliar para apagar as conversas de uma corrida
 const deleteChatMessages = async (userDriver, userCliente) => {
   try {
+    const database = await db();
     // Buscar todas as conversas entre o motorista e o cliente
-    const chatsRef = db().collection('chats');
+    const chatsRef = database.collection('chats');
     const querySnapshot = await chatsRef
       .where('userDriver', '==', userDriver)
       .where('userCliente', '==', userCliente)
       .get();
 
     // Apagar cada mensagem encontrada
-    const batch = db().batch();
+    const batch = database.batch();
     querySnapshot.forEach(doc => {
       batch.delete(doc.ref);
     });
@@ -252,6 +257,7 @@ export const finishRequest = async (req, res) => {
 
   try {
     const admin = await adm();
+    const database = await db();
     const endTime = admin.firestore().FieldValue.serverTimestamp();
     const documentData = await getDocument('races', requestId);
 
@@ -285,11 +291,11 @@ export const finishRequest = async (req, res) => {
     await transactionRepository.updateAmount(driverBalance, 'debit');
 
     const raceData = {price, status: 6, endTime, travelTimeMinutes, destinationLatitude: correctPosition.latitude, destinationLongitude: correctPosition.longitude };
-    await db().collection('races').doc(requestId).update(raceData);
-    await db().collection('users').doc(documentData.userdriverId).update({ tripId: null,});
+    await database.collection('races').doc(requestId).update(raceData);
+    await database.collection('users').doc(documentData.userdriverId).update({ tripId: null,});
     try{
-      await db().collection('requests').doc(requestId).update({ status: 'finished', endTime });
-      if (requestId) await db().collection('trips').doc(requestId).update({ end_time: endTime });
+      await database.collection('requests').doc(requestId).update({ status: 'finished', endTime });
+      if (requestId) await database.collection('trips').doc(requestId).update({ end_time: endTime });
     }
     catch(ex){
       log(ex);
@@ -326,10 +332,11 @@ export const arrivedRequest = async (req, res) => {
   const { requestId } = req.params;
 
   try {
-    const requestDoc = await db().collection('requests').doc(requestId).get();
+    const database = await db();
+    const requestDoc = await database.collection('requests').doc(requestId).get();
     if (!requestDoc.exists) return res.status(404).json({ error: 'Request not found' });
 
-    await db().collection('requests').doc(requestId).update({ status: 'arrived' });
+    await database.collection('requests').doc(requestId).update({ status: 'arrived' });
     await updateDocument('races', requestId, { status: 4 });
 
     clients.forEach((client) => client.emit('driverArrived', { requestId }));
@@ -346,10 +353,11 @@ export const startTheRaceRequest = async (req, res) => {
   const { vehicleId } = req.body;
 
   try {
-    const requestDoc = await db().collection('requests').doc(requestId).get();
+    const database = await db();
+    const requestDoc = await database.collection('requests').doc(requestId).get();
     if (!requestDoc.exists) return res.status(404).json({ error: 'Request not found' });
 
-    await db().collection('requests').doc(requestId).update({ status: 'startTheRace' });
+    await database.collection('requests').doc(requestId).update({ status: 'startTheRace' });
     const tripId = await startTripRecording(vehicleId, requestId);
 
     clients.forEach((client) => client.emit('driverStartTheRace', { requestId, tripId }));
