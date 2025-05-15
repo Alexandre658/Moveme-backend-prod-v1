@@ -165,13 +165,33 @@ class TransactionRepository {
    * @param {string} type - The update type (e.g., 'debit', 'credit').
    * @throws {Error} - If there's an error updating the amount.
    */
-  async updateAmount(amount, type) {
-    try {
-      const response = await axios.post(`${this.baseUrl}/updateAmount`, { amount, type }, { headers: this._headers() });
-      this._processResponse(response);
-    } catch (error) {
-      throw new Error(`Error updating amount: ${error.message}`);
+  async updateAmount(amount, type, maxRetries = 3) {
+    let lastError;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await axios.post(
+          `${this.baseUrl}/updateAmount`, 
+          { amount, type }, 
+          { 
+            headers: this._headers(),
+            timeout: 30000 // 30 second timeout
+          }
+        );
+        return this._processResponse(response);
+      } catch (error) {
+        lastError = error;
+        if (error.response?.status === 503) {
+          console.log(`Attempt ${attempt} failed with 503 error. Retrying...`);
+          // Wait for 1 second before retrying (with exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.min(1000 * Math.pow(2, attempt - 1), 5000)));
+          continue;
+        }
+        // For other errors, throw immediately
+        throw new Error(`Error updating amount: ${error.message}`);
+      }
     }
+    // If we've exhausted all retries, throw the last error
+    throw new Error(`Failed to update amount after ${maxRetries} attempts. Last error: ${lastError.message}`);
   }
 
   /**

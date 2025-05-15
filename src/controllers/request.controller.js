@@ -287,8 +287,14 @@ export const finishRequest = async (req, res) => {
    
     const driverBalance = price - fareService.calculateDriverBalance(price, documentData.vehicleCategory.tarifaBase / 100);
 
-    const transactionRepository = new TransactionRepository({ baseUrl: 'https://movemewallet.onrender.com', token });
-    await transactionRepository.updateAmount(driverBalance, 'debit');
+    try {
+      const transactionRepository = new TransactionRepository({ baseUrl: 'https://movemewallet.onrender.com', token });
+      await transactionRepository.updateAmount(driverBalance, 'debit');
+    } catch (error) {
+      console.error('Error updating driver balance:', error);
+      // Continue with the ride finish process even if the transaction fails
+      // The transaction can be retried later
+    }
 
     const raceData = {price, status: 6, endTime, travelTimeMinutes, destinationLatitude: correctPosition.latitude, destinationLongitude: correctPosition.longitude };
     await database.collection('races').doc(requestId).update(raceData);
