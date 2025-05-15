@@ -51,7 +51,7 @@ const startTripRecording = async (driverId, requestId) => {
     const admin = await adm();
     const tripRef = db().collection('trips').doc(requestId);
     await tripRef.set({
-      startTime: admin.firestore.FieldValue.serverTimestamp(),
+      startTime: admin.firestore().FieldValue.serverTimestamp(),
       requestId,
       status: 'ongoing',
     });
@@ -66,7 +66,7 @@ const startTripRecording = async (driverId, requestId) => {
             latitude: vehiclePosition.latitude,
             longitude: vehiclePosition.longitude,
             speed: vehiclePosition.speed,
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            timestamp: admin.firestore().FieldValue.serverTimestamp(),
           });
           console.log(`Route recorded for trip: ${requestId}`);
         } else {
@@ -252,7 +252,7 @@ export const finishRequest = async (req, res) => {
 
   try {
     const admin = await adm();
-    const endTime = admin.firestore.FieldValue.serverTimestamp();
+    const endTime = admin.firestore().FieldValue.serverTimestamp();
     const documentData = await getDocument('races', requestId);
 
     if(documentData.status == 6){
