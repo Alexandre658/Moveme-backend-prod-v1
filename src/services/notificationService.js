@@ -1,7 +1,4 @@
-  
 import {admMessaging} from '../config/firebaseConfig.js'
-
- 
 
 /**
  * Enviar notificação push para um único dispositivo.
@@ -21,7 +18,8 @@ export const sendPushNotification = async (token, title, body, data = {}) => {
   };
 
   try {
-    const response = await admMessaging().send(message);
+    const messaging = await admMessaging();
+    const response = await messaging.send(message);
     console.log('Notificação enviada com sucesso:', response);
     return response;
   } catch (error) {
@@ -48,7 +46,8 @@ export const sendBulkPushNotification = async (tokens, title, body, data = {}) =
   };
 
   try {
-    const response = await admMessaging.sendMulticast(message);
+    const messaging = await admMessaging();
+    const response = await messaging.sendMulticast(message);
     console.log(`${response.successCount} notificações enviadas com sucesso, ${response.failureCount} falharam`);
     return response;
   } catch (error) {
