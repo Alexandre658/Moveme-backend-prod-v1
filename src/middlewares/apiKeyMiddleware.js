@@ -28,7 +28,8 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     // Verifica o token do Firebase usando sua configuração existente
-    const decodedToken = await adm().auth().verifyIdToken(firebaseToken);
+    const admin = await adm();
+    const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
     
     req.user = {
       token:firebaseToken,

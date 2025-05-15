@@ -48,9 +48,10 @@ const getPolylineBetweenPoints = async (origin, destination) => {
 // Function to start trip recording
 const startTripRecording = async (driverId, requestId) => {
   try {
+    const admin = await adm();
     const tripRef = db().collection('trips').doc(requestId);
     await tripRef.set({
-      startTime: adm().firestore.FieldValue.serverTimestamp(),
+      startTime: admin.firestore.FieldValue.serverTimestamp(),
       requestId,
       status: 'ongoing',
     });
@@ -65,7 +66,7 @@ const startTripRecording = async (driverId, requestId) => {
             latitude: vehiclePosition.latitude,
             longitude: vehiclePosition.longitude,
             speed: vehiclePosition.speed,
-            timestamp: adm().firestore.FieldValue.serverTimestamp(),
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
           });
           console.log(`Route recorded for trip: ${requestId}`);
         } else {
@@ -250,7 +251,8 @@ export const finishRequest = async (req, res) => {
   if (!requestId) return res.status(400).json({ error: 'Invalid request ID' });
 
   try {
-    const endTime = adm().firestore.FieldValue.serverTimestamp();
+    const admin = await adm();
+    const endTime = admin.firestore.FieldValue.serverTimestamp();
     const documentData = await getDocument('races', requestId);
 
     if(documentData.status == 6){
